@@ -48,9 +48,6 @@ const TasksApp = () => {
     );
   };
 
-  // The '...' is called Spread syntax. https://stackoverflow.com/questions/40124680/what-does-in-react-native-mean
-  // The spread syntax allows an expression to be expanded in places where multiple arguments (for function calls)
-  // or multiple elements (for array literals) or multiple variables (for destructuring assignment) are expected.
   const createTask = (title) => {
     // only update if the input is not blank
     title.length > 0
