@@ -1,27 +1,9 @@
 import "./styles.css";
 import { useImmer } from "use-immer";
-import styled from "styled-components";
-import { render } from "react-dom";
 
-// Styled component named StyledButton
-const StyledButton = styled.button`
-  background: black;
-  border-radius: 3px;
-  border: 2px solid white;
-  color: white;
-  margin: 01em;
-  padding: 0.25em 1em;
-
-  ${(props) =>
-    props.primary &&
-    css`
-      background: palevioletred;
-      color: white;
-    `};
-`;
-
+// ID generator
 function* idMaker() {
-  var index = 2;
+  var index = -1;
   while (true) yield index++;
 }
 var gen = idMaker();
@@ -29,15 +11,13 @@ var gen = idMaker();
 const TasksApp = () => {
   const [appState, updateState] = useImmer({
     filterType: "all",
-    tasks: [
-      { id: 0, title: "uno", completed: true },
-      { id: 1, title: "dos", completed: false }
-    ]
+    tasks: []
   });
 
   const Task = ({ title, completed, toggleTask }) => {
     return (
       <li
+        className="task-row"
         style={{
           textDecoration: completed ? "line-through" : "none"
         }}
@@ -134,18 +114,30 @@ const TasksApp = () => {
     return (
       <form onSubmit={handleSubmit}>
         <label>
-          <input ref={(r) => (taskInput = r)} type="text" />
+          <input
+            className="task-input"
+            ref={(r) => (taskInput = r)}
+            type="text"
+          />
         </label>
-        <input type="submit" value="Create Task Manually" />
+        <input
+          className="task-button"
+          type="submit"
+          value="Create Task Manually"
+        />
       </form>
     );
   };
 
   const TodoFilter = ({ filterType, setFilterType }) => (
     <span>
-      <b>Filter Todos: </b>
+      <b className="filter-text">Filter Tasks: </b>
       {["all", "completed", "active"].map((status, i) => (
-        <button key={i} onClick={() => setFilterType(status)}>
+        <button
+          className="filter-buttons"
+          key={i}
+          onClick={() => setFilterType(status)}
+        >
           {status}
         </button>
       ))}
@@ -167,17 +159,15 @@ const TasksApp = () => {
   // when you enter, the value from taskForm is being passed to createTask
   return (
     <div>
+      <h1> Zhiying's To-Do List </h1>
       <TaskForm taskAction={createTask} />
-      <StyledButton onClick={updateFromPromise}>
-        {" "}
-        Fetch & Add Using Promise
-      </StyledButton>
-      <StyledButton onClick={updateFromAsync}>
-        {" "}
-        Fetch & Add Using Async/Wait{" "}
-      </StyledButton>
-
-      <h3> Zhiying's To-Do List </h3>
+      <button className="fetch-buttons" onClick={updateFromPromise}>
+        Fetch from Server (Promise)
+      </button>
+      <button className="fetch-buttons" onClick={updateFromAsync}>
+        Fetch from Server (Async/Wait)
+      </button>
+      <h3> </h3>
 
       <TodoFilter
         filterType={appState.filterType}
