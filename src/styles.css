@@ -53,8 +53,8 @@ h1 {
 }
 .fetch-buttons {
   padding: 5px;
-  margin: 25px 25px;
-  border: none;
+  margin: 25px 15px;
+  border: 2px solid lightcoral;
   border-radius: 0 4px 4px 0;
   cursor: pointer;
   outline: none;
@@ -71,18 +71,18 @@ h1 {
 }
 .task-button {
   padding: 16px;
-  border: none;
+  border: 1px #e7ac94;
   border-radius: 0 4px 4px 0;
   cursor: pointer;
   outline: none;
-  background: #ffa580;
+  background: #f5cbba;
   color: #2a293e;
   text-transform: capitalize;
 }
 .task-input {
   padding: 14px 32px 14px 16px;
   border-radius: 4px 0 0 4px;
-  border: 2px solid LightCoral;
+  border: 1.5px solid #e7ac94;
   outline: none;
   width: 320px;
   background: transparent;

@@ -1,12 +1,13 @@
 import "./styles.css";
 import { useImmer } from "use-immer";
+import { render } from "react-dom";
 
-// ID generator
-function* idMaker() {
-  var index = -1;
-  while (true) yield index++;
-}
-var gen = idMaker();
+// // ID generator
+// function* idMaker() {
+//   var index = 0;
+//   while (true) yield index++;
+// }
+// var gen = idMaker();
 
 const TasksApp = () => {
   const [appState, updateState] = useImmer({
@@ -28,6 +29,21 @@ const TasksApp = () => {
     );
   };
 
+  // this create tasks from the server
+  const createTaskServer = (title, id, completed) => {
+    // only update if the input is not blank
+    title.length > 0
+      ? updateState((state) => ({
+          ...state,
+          tasks: [
+            ...state.tasks,
+            { id: id, title: title, completed: completed }
+          ]
+        }))
+      : alert("Please Input a Task");
+  };
+
+  // this creates a task locally by manually inputing
   const createTask = (title) => {
     // only update if the input is not blank
     title.length > 0
@@ -35,10 +51,61 @@ const TasksApp = () => {
           ...state,
           tasks: [
             ...state.tasks,
-            { id: gen.next().value, title: title, completed: false }
+            { id: appState.tasks.length + 1, title: title, completed: false }
           ]
         }))
       : alert("Please Input a Task");
+    // only save to the server if confirmed, else create it locally
+    if (
+      window.confirm(
+        "Are you sure you want to save this new task into the database?"
+      )
+    ) {
+      // save it to the server
+      PostTaksPromise(title, appState.tasks.length + 1);
+      console.log("This is saved to database");
+    } else {
+      console.log("This is not saved to database but created locally");
+    }
+  };
+
+  // when you create a new tasks, pass the new task to the server
+  const PostTaksPromise = (title, id) => {
+    // id on server is the next list item id + 1
+    fetch(url, {
+      method: "POST",
+      body: JSON.stringify({
+        id: `${id}`,
+        title: `${title}`,
+        completed: false
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8"
+      }
+    })
+      .then((response) => response.json())
+      .then((json) => console.log(json));
+  };
+
+  // when you toggle the tasks, reflect the change to the server by patching
+  // fetch for the current state of the id
+  // if for that id, if it's complete, change to incomplete, vice versa
+  const togglePromise = (id) => {
+    // reverse the current state if toggle
+    let reverse_status = appState.tasks[id - 1].completed ? false : true;
+    fetch(url + `/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        completed: reverse_status
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8"
+      }
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((json) => console.log(json));
   };
 
   const toggleTask = (id) => {
@@ -48,6 +115,10 @@ const TasksApp = () => {
         task.id === id ? { ...task, completed: !task.completed } : task
       )
     }));
+    // console.log(id);
+    // console.log(appState.tasks);
+    // console.log(appState.tasks[id - 1]);
+    togglePromise(id);
   };
 
   // onClick of the button, then fetch and create tasks
@@ -71,8 +142,9 @@ const TasksApp = () => {
       response.tasks.forEach((item) => {
         list.includes(item.title.toLowerCase())
           ? alert(`Task ${item.title} already exist`)
-          : createTask(item.title);
+          : createTaskServer(item.title, item.id, item.completed);
       });
+      console.log(response.tasks);
     });
   };
 
@@ -97,7 +169,7 @@ const TasksApp = () => {
       response.tasks.forEach((item) => {
         list.includes(item.title.toLowerCase())
           ? alert(`Task ${item.title} already exist`)
-          : createTask(item.title);
+          : createTaskServer(item.title, item.id, item.completed);
       });
     });
   };
@@ -107,9 +179,14 @@ const TasksApp = () => {
     let taskInput;
 
     const handleSubmit = (event) => {
-      event.preventDefault();
-      taskAction(taskInput.value);
-      taskInput.value = "";
+      if (appState.tasks.length === 0) {
+        alert("Please Synchronize with Server Before Creating Task Manually");
+        event.preventDefault();
+      } else {
+        event.preventDefault();
+        taskAction(taskInput.value);
+        taskInput.value = "";
+      }
     };
     return (
       <form onSubmit={handleSubmit}>
@@ -157,15 +234,16 @@ const TasksApp = () => {
   };
 
   // when you enter, the value from taskForm is being passed to createTask
+
   return (
     <div>
-      <h1> Zhiying's To-Do List </h1>
+      <h1> Zhiying's To-Do List</h1>
       <TaskForm taskAction={createTask} />
       <button className="fetch-buttons" onClick={updateFromPromise}>
-        Fetch from Server (Promise)
+        Synchronize with Server (Promise)
       </button>
       <button className="fetch-buttons" onClick={updateFromAsync}>
-        Fetch from Server (Async/Wait)
+        Synchronize with Server (Async/Wait)
       </button>
       <h3> </h3>
 
