@@ -1,13 +1,5 @@
 import "./styles.css";
 import { useImmer } from "use-immer";
-import { render } from "react-dom";
-
-// // ID generator
-// function* idMaker() {
-//   var index = 0;
-//   while (true) yield index++;
-// }
-// var gen = idMaker();
 
 const TasksApp = () => {
   const [appState, updateState] = useImmer({
